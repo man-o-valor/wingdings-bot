@@ -4,9 +4,8 @@ const { wingdingsDict, wingdingsDictEmojis } = require("../../dicts.js");
 function translateToWingdings(text, dict = wingdingsDict) {
   if (!text) return "";
   return text
-    .toUpperCase()
     .split("")
-    .map((ch) => (Object.prototype.hasOwnProperty.call(dict, ch) ? dict[ch] : ""))
+    .map((ch) => (Object.prototype.hasOwnProperty.call(dict, ch) ? dict[ch] : ch))
     .join("");
 }
 
@@ -29,6 +28,6 @@ module.exports = {
     const useEmoji = interaction.options.getBoolean("emoji") ?? false;
     const dict = useEmoji ? wingdingsDictEmojis : wingdingsDict;
     const translated = translateToWingdings(message, dict);
-    await interaction.reply({ content: translated || failmsg, flags: secret ? MessageFlags.Ephemeral : undefined });
+    await interaction.reply({ content: "​" + translated || failmsg, flags: secret ? MessageFlags.Ephemeral : undefined });
   }
 };
