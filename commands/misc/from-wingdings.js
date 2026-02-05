@@ -1,15 +1,30 @@
 const { ContextMenuCommandBuilder, ApplicationCommandType, MessageFlags } = require("discord.js");
-const { wingdingsDict, wingdingsDictEmojis } = require("../../dicts.js");
+const { wingdingsDict } = require("../../dicts.js");
 
-function buildReverseMap(dict) {
+function buildMapFromDict(dictType) {
+  if (Array.isArray(wingdingsDict)) {
+    const map = {};
+    for (const entry of wingdingsDict) {
+      if (!entry || typeof entry.char === "undefined") continue;
+      const val = entry.code ? entry.code[dictType] : undefined;
+      if (typeof val !== "undefined") map[entry.char] = val;
+    }
+    return map;
+  }
+  return wingdingsDict;
+}
+
+function buildReverseMap(dictType) {
   const rev = {};
-  for (const [k, v] of Object.entries(dict)) rev[v] = k;
+  const map = buildMapFromDict(dictType);
+  for (const [k, v] of Object.entries(map)) rev[v] = k;
   return rev;
 }
 
-function buildNormalizedReverseMap(dict) {
+function buildNormalizedReverseMap(dictType) {
   const rev = {};
-  for (const [k, v] of Object.entries(dict)) {
+  const map = buildMapFromDict(dictType);
+  for (const [k, v] of Object.entries(map)) {
     let normalizedKey = normalizeCustomEmoji(v);
     normalizedKey = normalizedKey.replace(/<:([a-zA-Z0-9_]+)>/g, (match, name) => {
       return `<:${normalizeEmojiName(name)}>`;
@@ -19,9 +34,9 @@ function buildNormalizedReverseMap(dict) {
   return rev;
 }
 
-function translateFromWingdings(text, dict, useNormalizedMap = false) {
+function translateFromWingdings(text, dictType, useNormalizedMap = false) {
   if (!text) return "";
-  const rev = useNormalizedMap ? buildNormalizedReverseMap(dict) : buildReverseMap(dict);
+  const rev = useNormalizedMap ? buildNormalizedReverseMap(dictType) : buildReverseMap(dictType);
   const symbols = Object.keys(rev).sort((a, b) => b.length - a.length);
   let i = 0;
   let out = "";
@@ -43,9 +58,9 @@ function translateFromWingdings(text, dict, useNormalizedMap = false) {
   return out;
 }
 
-function countMatchingChars(text, dict, useNormalizedMap = false) {
+function countMatchingChars(text, dictType, useNormalizedMap = false) {
   if (!text) return 0;
-  const rev = useNormalizedMap ? buildNormalizedReverseMap(dict) : buildReverseMap(dict);
+  const rev = useNormalizedMap ? buildNormalizedReverseMap(dictType) : buildReverseMap(dictType);
   const symbols = Object.keys(rev).sort((a, b) => b.length - a.length);
   let i = 0;
   let count = 0;
@@ -94,14 +109,10 @@ module.exports = {
       return `<:${normalizeEmojiName(name)}>`;
     });
 
-    const emojiCount = countMatchingChars(normalizedMsg, wingdingsDictEmojis || {}, true);
-    const normalCount = countMatchingChars(msg, wingdingsDict || {});
+    //const compTranslated = translateFromWingdings(normalizedMsg, "comp", false);
+    const emojiTranslated = translateFromWingdings(normalizedMsg, "emoji", true);
+    const originalTranslated = translateFromWingdings(emojiTranslated, "original", false);
 
-    const dictToUse = emojiCount >= normalCount ? wingdingsDictEmojis : wingdingsDict;
-    const msgToTranslate = dictToUse === wingdingsDictEmojis ? normalizedMsg : msg;
-    const useNormalized = dictToUse === wingdingsDictEmojis;
-    const translated = translateFromWingdings(msgToTranslate, dictToUse, useNormalized);
-
-    await interaction.reply({ content: translated, flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: originalTranslated, flags: MessageFlags.Ephemeral });
   }
 };
