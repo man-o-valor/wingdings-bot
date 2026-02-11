@@ -37,7 +37,7 @@ let wingdingsDict = [
   { char: "T", code: {original: "❄", comp: "❄️", emoji: "❄️"} },
   { char: "U", code: {original: "✝", comp: "✝️", emoji: "✝️"} },
   { char: "V", code: {original: "✞", comp: "✞", emoji: "<:shadowed_cross:1468052208829595659>"} },
-  { char: "W", code: {original: "✝", comp: "✝", emoji: "<:celtic_cross:1468052217947750411>"} },
+  { char: "W", code: {original: "🕈", comp: "🕈", emoji: "<:celtic_cross:1468052217947750411>"} },
   { char: "X", code: {original: "✠", comp: "✠", emoji: "<:maltese_cross:1468052216140140820>"} },
   { char: "Y", code: {original: "✡", comp: "✡️", emoji: "✡️"} },
   { char: "Z", code: {original: "☪", comp: "☪️", emoji: "☪️"} },
